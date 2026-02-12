@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MOH Collab Card QR Codes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Asul:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -130,6 +133,36 @@
 
     .card-btn.active .card-id { color: #7cb3f0; }
 
+    /* Customize row */
+    .customize-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .color-picker-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .color-picker-wrap label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #999;
+      margin: 0;
+    }
+
+    .color-picker-wrap input[type="color"] {
+      width: 48px;
+      height: 48px;
+      padding: 2px;
+      border: 1px solid #444;
+      border-radius: 8px;
+      background: #111;
+      cursor: pointer;
+    }
+
     /* Output */
     .output {
       display: none;
@@ -138,28 +171,37 @@
 
     .output.visible { display: block; }
 
-    .output-card-name {
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-
     .output-card-id {
       font-size: 13px;
       color: #888;
       margin-bottom: 16px;
     }
 
+    /* Card preview */
+    .card-preview {
+      display: inline-block;
+      padding: 32px 32px 24px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      transition: background-color 0.2s;
+    }
+
     #qrcode {
       display: inline-block;
-      padding: 16px;
+      padding: 12px;
       background: #fff;
-      border-radius: 12px;
-      margin-bottom: 16px;
+      border-radius: 10px;
     }
 
     #qrcode img, #qrcode canvas { display: block; }
+
+    .card-preview-name {
+      font-family: 'Asul', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 16px;
+      letter-spacing: 0.5px;
+    }
 
     .deep-link-display {
       background: #111;
@@ -237,11 +279,28 @@
     <div class="card-grid" id="cardGrid"></div>
   </div>
 
+  <!-- Customize -->
+  <div class="panel output" id="customizePanel">
+    <h2>Customize</h2>
+    <div class="customize-row">
+      <div class="color-picker-wrap">
+        <label for="bgColor">Card Background</label>
+        <input type="color" id="bgColor" value="#1a1a1a">
+      </div>
+      <div class="color-picker-wrap">
+        <label for="textColor">Text Color</label>
+        <input type="color" id="textColor" value="#ffffff">
+      </div>
+    </div>
+  </div>
+
   <!-- Output -->
   <div class="panel output" id="outputPanel">
-    <div class="output-card-name" id="outputName"></div>
     <div class="output-card-id" id="outputId"></div>
-    <div id="qrcode"></div>
+    <div class="card-preview" id="cardPreview">
+      <div id="qrcode"></div>
+      <div class="card-preview-name" id="previewName"></div>
+    </div>
     <div class="deep-link-display" id="linkDisplay"></div>
     <div class="output-actions">
       <button class="action-btn" onclick="copyLink()">Copy Link</button>
@@ -282,6 +341,20 @@ const UNLOCK_ALL_URI = "moh://unlock?cards=" + CARDS.map(c => c.id).join(",");
 let currentUri = "";
 let currentLabel = "";
 
+// Color pickers
+const bgColorInput = document.getElementById("bgColor");
+const textColorInput = document.getElementById("textColor");
+
+bgColorInput.addEventListener("input", updatePreviewStyle);
+textColorInput.addEventListener("input", updatePreviewStyle);
+
+function updatePreviewStyle() {
+  const preview = document.getElementById("cardPreview");
+  const nameEl = document.getElementById("previewName");
+  if (preview) preview.style.backgroundColor = bgColorInput.value;
+  if (nameEl) nameEl.style.color = textColorInput.value;
+}
+
 // Render card grid
 const grid = document.getElementById("cardGrid");
 CARDS.forEach((card, i) => {
@@ -306,8 +379,8 @@ function selectCard(index) {
   currentUri = `moh://unlock?card=${card.id}`;
   currentLabel = card.name;
 
-  document.getElementById("outputName").textContent = card.name;
   document.getElementById("outputId").textContent = `#${card.num} — ${card.id}`;
+  document.getElementById("previewName").textContent = card.name;
   generateQR(currentUri);
 }
 
@@ -316,10 +389,10 @@ function selectUnlockAll() {
   document.querySelector(".unlock-all-btn").style.outline = "2px solid #7c3aed";
 
   currentUri = UNLOCK_ALL_URI;
-  currentLabel = "All 21 Cards";
+  currentLabel = "Unlock ALL Cards";
 
-  document.getElementById("outputName").textContent = "Unlock ALL Cards";
   document.getElementById("outputId").textContent = "MOH1-300 through MOH1-320";
+  document.getElementById("previewName").textContent = "Unlock ALL Cards";
   generateQR(currentUri);
 }
 
@@ -336,7 +409,11 @@ function generateQR(uri) {
     correctLevel: QRCode.CorrectLevel.H
   });
 
+  // Apply preview styles
+  updatePreviewStyle();
+
   document.getElementById("linkDisplay").textContent = uri;
+  document.getElementById("customizePanel").classList.add("visible");
   document.getElementById("outputPanel").classList.add("visible");
   document.getElementById("outputPanel").scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -346,17 +423,62 @@ function copyLink() {
 }
 
 function downloadQR() {
-  const canvas = document.querySelector("#qrcode canvas");
-  const img = document.querySelector("#qrcode img");
-  const src = canvas ? canvas.toDataURL("image/png") : img?.src;
-  if (!src) return;
+  const qrCanvas = document.querySelector("#qrcode canvas");
+  const qrImg = document.querySelector("#qrcode img");
+  if (!qrCanvas && !qrImg) return;
 
-  const a = document.createElement("a");
-  a.href = src;
-  const safeName = currentLabel.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
-  a.download = `moh_${safeName}.png`;
-  a.click();
-  showToast("QR code downloaded!");
+  document.fonts.ready.then(() => {
+    const bgColor = bgColorInput.value;
+    const txtColor = textColorInput.value;
+    const label = currentLabel;
+
+    const padding = 40;
+    const qrSize = 256;
+    const textHeight = 40;
+    const gap = 16;
+    const cardWidth = qrSize + padding * 2;
+    const cardHeight = padding + qrSize + gap + textHeight + padding;
+
+    const offscreen = document.createElement("canvas");
+    offscreen.width = cardWidth;
+    offscreen.height = cardHeight;
+    const ctx = offscreen.getContext("2d");
+
+    // Background
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, cardWidth, cardHeight);
+
+    // QR code
+    const drawQR = (qrSource) => {
+      const qrX = (cardWidth - qrSize) / 2;
+      const qrY = padding;
+      ctx.drawImage(qrSource, qrX, qrY, qrSize, qrSize);
+
+      // Card name text
+      ctx.fillStyle = txtColor;
+      ctx.font = "bold 22px 'Asul', serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(label, cardWidth / 2, padding + qrSize + gap, cardWidth - 32);
+
+      // Download
+      const a = document.createElement("a");
+      a.href = offscreen.toDataURL("image/png");
+      const safeName = label.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+      a.download = `moh_${safeName}.png`;
+      a.click();
+      showToast("QR card downloaded!");
+    };
+
+    if (qrCanvas) {
+      drawQR(qrCanvas);
+    } else {
+      const tempImg = new Image();
+      tempImg.crossOrigin = "anonymous";
+      tempImg.onload = () => drawQR(tempImg);
+      tempImg.src = qrImg.src;
+    }
+  });
 }
 
 function showToast(msg) {
