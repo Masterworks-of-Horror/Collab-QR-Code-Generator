@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deep Link QR Code Generator</title>
+  <title>MOH Collab Card QR Codes</title>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,7 +16,7 @@
     }
 
     .container {
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 40px 24px;
     }
@@ -49,111 +49,86 @@
       color: #ccc;
     }
 
-    /* Preset grid */
-    .presets {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-      margin-bottom: 20px;
+    /* Unlock All button */
+    .unlock-all-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: opacity 0.15s;
+      letter-spacing: 0.3px;
     }
 
-    .preset-btn {
+    .unlock-all-btn:hover { opacity: 0.9; }
+
+    .unlock-all-hint {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    /* Card grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+    }
+
+    .card-btn {
       background: #222;
       border: 1px solid #333;
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 12px 14px;
       color: #ccc;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.15s;
       text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .preset-btn:hover {
+    .card-btn:hover {
       background: #2a2a2a;
       border-color: #555;
       color: #fff;
     }
 
-    .preset-btn.active {
+    .card-btn.active {
       background: #1e3a5f;
       border-color: #3b82f6;
       color: #93c5fd;
     }
 
-    .preset-btn .preset-icon {
-      font-size: 18px;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .preset-btn .preset-label {
-      font-weight: 500;
-    }
-
-    /* Form */
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: #999;
-      margin-bottom: 6px;
-      margin-top: 14px;
-    }
-
-    label:first-child { margin-top: 0; }
-
-    input, select, textarea {
-      width: 100%;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: #e0e0e0;
-      font-size: 14px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: #3b82f6;
-    }
-
-    textarea { resize: vertical; min-height: 60px; }
-
-    .hint {
-      font-size: 12px;
+    .card-btn .card-num {
+      font-weight: 700;
       color: #666;
-      margin-top: 4px;
+      font-size: 13px;
+      min-width: 24px;
+      margin-right: 10px;
     }
 
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    .card-btn.active .card-num { color: #60a5fa; }
+
+    .card-btn .card-name { flex: 1; font-weight: 500; }
+
+    .card-btn .card-id {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: #555;
+      margin-left: 8px;
     }
 
-    .dynamic-fields { margin-top: 14px; }
-
-    /* Generate button */
-    .generate-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #3b82f6;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: background 0.15s;
-    }
-
-    .generate-btn:hover { background: #2563eb; }
+    .card-btn.active .card-id { color: #7cb3f0; }
 
     /* Output */
     .output {
@@ -163,6 +138,19 @@
 
     .output.visible { display: block; }
 
+    .output-card-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .output-card-id {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
     #qrcode {
       display: inline-block;
       padding: 16px;
@@ -171,7 +159,7 @@
       margin-bottom: 16px;
     }
 
-    #qrcode img { display: block; }
+    #qrcode img, #qrcode canvas { display: block; }
 
     .deep-link-display {
       background: #111;
@@ -229,104 +217,35 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
-
-    /* QR customization */
-    .color-row {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      margin-top: 8px;
-    }
-
-    .color-picker-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .color-picker-wrap input[type="color"] {
-      width: 36px;
-      height: 36px;
-      padding: 2px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .size-slider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    .size-slider input[type="range"] {
-      flex: 1;
-      accent-color: #3b82f6;
-    }
-
-    .size-slider span {
-      font-size: 13px;
-      color: #888;
-      min-width: 50px;
-    }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Deep Link QR Generator</h1>
-  <p class="subtitle">Generate QR codes for app deep links, universal links, and custom URI schemes</p>
+  <h1>MOH Collab Card QR Codes</h1>
+  <p class="subtitle">Scan a QR code to unlock collab cards in Masterworks of Horror</p>
 
-  <!-- Presets -->
+  <!-- Unlock All -->
   <div class="panel">
-    <h2>Quick Presets</h2>
-    <div class="presets" id="presets"></div>
+    <button class="unlock-all-btn" onclick="selectUnlockAll()">Unlock ALL 21 Cards</button>
+    <p class="unlock-all-hint">Generates a single QR code that unlocks every collab card at once</p>
   </div>
 
-  <!-- Link Builder -->
+  <!-- Individual Cards -->
   <div class="panel">
-    <h2>Link Builder</h2>
-
-    <label for="scheme">URI Scheme / Protocol</label>
-    <input type="text" id="scheme" placeholder="e.g. myapp://, https://, fb://">
-
-    <div class="dynamic-fields" id="dynamicFields"></div>
-
-    <label for="fullUri" style="margin-top:18px">Full Deep Link URI</label>
-    <textarea id="fullUri" placeholder="The complete deep link will appear here, or type your own"></textarea>
-    <p class="hint">Edit directly or use the fields above to build the link</p>
-
-    <!-- QR Options -->
-    <label>QR Code Size</label>
-    <div class="size-slider">
-      <input type="range" id="qrSize" min="128" max="512" value="256" step="16">
-      <span id="qrSizeLabel">256px</span>
-    </div>
-
-    <label>Colors</label>
-    <div class="color-row">
-      <div class="color-picker-wrap">
-        <input type="color" id="qrDark" value="#000000">
-        <span style="font-size:13px;color:#999">Foreground</span>
-      </div>
-      <div class="color-picker-wrap">
-        <input type="color" id="qrLight" value="#ffffff">
-        <span style="font-size:13px;color:#999">Background</span>
-      </div>
-    </div>
-
-    <button class="generate-btn" onclick="generateQR()">Generate QR Code</button>
+    <h2>Individual Cards</h2>
+    <div class="card-grid" id="cardGrid"></div>
   </div>
 
   <!-- Output -->
   <div class="panel output" id="outputPanel">
-    <h2>Your QR Code</h2>
+    <div class="output-card-name" id="outputName"></div>
+    <div class="output-card-id" id="outputId"></div>
     <div id="qrcode"></div>
     <div class="deep-link-display" id="linkDisplay"></div>
     <div class="output-actions">
       <button class="action-btn" onclick="copyLink()">Copy Link</button>
       <button class="action-btn" onclick="downloadQR()">Download PNG</button>
-      <button class="action-btn" onclick="downloadSVG()">Download SVG</button>
     </div>
   </div>
 </div>
@@ -334,383 +253,117 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// Deep link presets
-const PRESETS = [
-  {
-    label: 'Custom App', icon: '📱',
-    scheme: 'myapp://',
-    fields: [
-      { id: 'path', label: 'Path', placeholder: 'e.g. product/123, screen/home' },
-      { id: 'params', label: 'Query Params', placeholder: 'e.g. id=42&ref=qr' }
-    ],
-    build: (f) => `myapp://${f.path}${f.params ? '?' + f.params : ''}`
-  },
-  {
-    label: 'iOS Universal', icon: '🍎',
-    scheme: 'https://',
-    fields: [
-      { id: 'domain', label: 'Domain', placeholder: 'e.g. myapp.com' },
-      { id: 'path', label: 'Path', placeholder: 'e.g. /product/123' },
-      { id: 'params', label: 'Query Params', placeholder: 'e.g. utm_source=qr' }
-    ],
-    build: (f) => `https://${f.domain}${f.path}${f.params ? '?' + f.params : ''}`
-  },
-  {
-    label: 'Android Intent', icon: '🤖',
-    scheme: 'intent://',
-    fields: [
-      { id: 'host', label: 'Host/Path', placeholder: 'e.g. product/123' },
-      { id: 'package', label: 'Package Name', placeholder: 'e.g. com.example.app' },
-      { id: 'fallback', label: 'Fallback URL', placeholder: 'https://play.google.com/store/apps/details?id=...' }
-    ],
-    build: (f) => `intent://${f.host}#Intent;scheme=https;package=${f.package};S.browser_fallback_url=${encodeURIComponent(f.fallback || '')};end`
-  },
-  {
-    label: 'Android App Link', icon: '🔗',
-    scheme: 'https://',
-    fields: [
-      { id: 'domain', label: 'Domain', placeholder: 'e.g. myapp.com' },
-      { id: 'path', label: 'Path', placeholder: 'e.g. /share/abc123' },
-      { id: 'params', label: 'Query Params', placeholder: 'e.g. ref=qr' }
-    ],
-    build: (f) => `https://${f.domain}${f.path}${f.params ? '?' + f.params : ''}`
-  },
-  {
-    label: 'WhatsApp', icon: '💬',
-    scheme: 'https://wa.me/',
-    fields: [
-      { id: 'phone', label: 'Phone Number', placeholder: '1234567890 (with country code, no +)' },
-      { id: 'text', label: 'Pre-filled Message', placeholder: 'Hello!' }
-    ],
-    build: (f) => `https://wa.me/${f.phone}${f.text ? '?text=' + encodeURIComponent(f.text) : ''}`
-  },
-  {
-    label: 'Telegram', icon: '✈️',
-    scheme: 'https://t.me/',
-    fields: [
-      { id: 'target', label: 'Username or Invite', placeholder: 'e.g. mybot or +InviteHash' }
-    ],
-    build: (f) => `https://t.me/${f.target}`
-  },
-  {
-    label: 'Instagram', icon: '📷',
-    scheme: 'instagram://',
-    fields: [
-      { id: 'type', label: 'Type', placeholder: 'user, media, or tag' },
-      { id: 'value', label: 'Value', placeholder: 'username, media ID, or tag name' }
-    ],
-    build: (f) => {
-      if (f.type === 'user') return `instagram://user?username=${f.value}`;
-      if (f.type === 'media') return `instagram://media?id=${f.value}`;
-      if (f.type === 'tag') return `instagram://tag?name=${f.value}`;
-      return `instagram://${f.type}?${f.value}`;
-    }
-  },
-  {
-    label: 'Twitter / X', icon: '🐦',
-    scheme: 'twitter://',
-    fields: [
-      { id: 'action', label: 'Action', placeholder: 'user, status, or post' },
-      { id: 'value', label: 'Value', placeholder: 'username, tweet ID, or text to tweet' }
-    ],
-    build: (f) => {
-      if (f.action === 'user') return `twitter://user?screen_name=${f.value}`;
-      if (f.action === 'status') return `twitter://status?id=${f.value}`;
-      if (f.action === 'post') return `twitter://post?message=${encodeURIComponent(f.value)}`;
-      return `twitter://${f.action}`;
-    }
-  },
-  {
-    label: 'YouTube', icon: '▶️',
-    scheme: 'https://youtu.be/',
-    fields: [
-      { id: 'videoId', label: 'Video ID', placeholder: 'e.g. dQw4w9WgXcQ' },
-      { id: 'time', label: 'Start Time (s)', placeholder: 'e.g. 30' }
-    ],
-    build: (f) => `https://youtu.be/${f.videoId}${f.time ? '?t=' + f.time : ''}`
-  },
-  {
-    label: 'Spotify', icon: '🎵',
-    scheme: 'spotify://',
-    fields: [
-      { id: 'type', label: 'Type', placeholder: 'track, album, playlist, artist' },
-      { id: 'id', label: 'Spotify ID', placeholder: 'e.g. 6rqhFgbbKwnb9MLmUQDhG6' }
-    ],
-    build: (f) => `spotify://${f.type}/${f.id}`
-  },
-  {
-    label: 'Maps', icon: '🗺️',
-    scheme: 'geo:',
-    fields: [
-      { id: 'lat', label: 'Latitude', placeholder: 'e.g. 37.7749' },
-      { id: 'lng', label: 'Longitude', placeholder: 'e.g. -122.4194' },
-      { id: 'query', label: 'Search Query', placeholder: 'e.g. coffee shops' }
-    ],
-    build: (f) => `geo:${f.lat || 0},${f.lng || 0}${f.query ? '?q=' + encodeURIComponent(f.query) : ''}`
-  },
-  {
-    label: 'Email', icon: '📧',
-    scheme: 'mailto:',
-    fields: [
-      { id: 'email', label: 'Email Address', placeholder: 'user@example.com' },
-      { id: 'subject', label: 'Subject', placeholder: 'Hello!' },
-      { id: 'body', label: 'Body', placeholder: 'Message content...' }
-    ],
-    build: (f) => {
-      let uri = `mailto:${f.email}`;
-      const params = [];
-      if (f.subject) params.push(`subject=${encodeURIComponent(f.subject)}`);
-      if (f.body) params.push(`body=${encodeURIComponent(f.body)}`);
-      if (params.length) uri += '?' + params.join('&');
-      return uri;
-    }
-  },
-  {
-    label: 'Phone / SMS', icon: '📞',
-    scheme: 'tel:',
-    fields: [
-      { id: 'type', label: 'Type (tel or sms)', placeholder: 'tel or sms' },
-      { id: 'number', label: 'Phone Number', placeholder: '+1234567890' },
-      { id: 'body', label: 'SMS Body (sms only)', placeholder: 'Message text...' }
-    ],
-    build: (f) => {
-      if (f.type === 'sms') return `sms:${f.number}${f.body ? '?body=' + encodeURIComponent(f.body) : ''}`;
-      return `tel:${f.number}`;
-    }
-  },
-  {
-    label: 'Slack', icon: '💼',
-    scheme: 'slack://',
-    fields: [
-      { id: 'team', label: 'Team ID', placeholder: 'T0123456789' },
-      { id: 'channel', label: 'Channel ID', placeholder: 'C0123456789' }
-    ],
-    build: (f) => `slack://channel?team=${f.team}&id=${f.channel}`
-  },
-  {
-    label: 'Zoom', icon: '🎥',
-    scheme: 'zoomus://',
-    fields: [
-      { id: 'confno', label: 'Meeting ID', placeholder: '1234567890' },
-      { id: 'pwd', label: 'Password', placeholder: 'optional' }
-    ],
-    build: (f) => `zoomus://zoom.us/join?confno=${f.confno}${f.pwd ? '&pwd=' + f.pwd : ''}`
-  },
-  {
-    label: 'Custom URI', icon: '🔧',
-    scheme: '',
-    fields: [
-      { id: 'uri', label: 'Full URI', placeholder: 'e.g. myscheme://path?key=value' }
-    ],
-    build: (f) => f.uri || ''
-  }
+const CARDS = [
+  { num: 1,  name: "Sisyphus's Boulder",  id: "MOH1-300" },
+  { num: 2,  name: "Bouldy (Token)",       id: "MOH1-301" },
+  { num: 3,  name: "Robot Arms",           id: "MOH1-302" },
+  { num: 4,  name: "Robot Legs",           id: "MOH1-303" },
+  { num: 5,  name: "Robot Chassis",        id: "MOH1-304" },
+  { num: 6,  name: "Mega Brawler",         id: "MOH1-305" },
+  { num: 7,  name: "Glorgo",               id: "MOH1-306" },
+  { num: 8,  name: "Dozer",                id: "MOH1-307" },
+  { num: 9,  name: "A Suffocated Poem",    id: "MOH1-308" },
+  { num: 10, name: "Lil Chomper",          id: "MOH1-309" },
+  { num: 11, name: "Orbital Strike",       id: "MOH1-310" },
+  { num: 12, name: "413 \u00BD W Clark St",id: "MOH1-311" },
+  { num: 13, name: "Mama Spider",          id: "MOH1-312" },
+  { num: 14, name: "Baby Spider",          id: "MOH1-313" },
+  { num: 15, name: "Melon",                id: "MOH1-314" },
+  { num: 16, name: "Mango Tree!",          id: "MOH1-315" },
+  { num: 17, name: "A Difficult Choice",   id: "MOH1-316" },
+  { num: 18, name: "Scout",                id: "MOH1-317" },
+  { num: 19, name: "Clofin",               id: "MOH1-318" },
+  { num: 20, name: "Tami",                 id: "MOH1-319" },
+  { num: 21, name: "Larry",                id: "MOH1-320" }
 ];
 
-let activePreset = null;
-let qrInstance = null;
+const UNLOCK_ALL_URI = "moh://unlock?cards=" + CARDS.map(c => c.id).join(",");
 
-// Render presets
-const presetsContainer = document.getElementById('presets');
-PRESETS.forEach((preset, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'preset-btn';
-  btn.innerHTML = `<span class="preset-icon">${preset.icon}</span><span class="preset-label">${preset.label}</span>`;
-  btn.onclick = () => selectPreset(i);
-  presetsContainer.appendChild(btn);
+let currentUri = "";
+let currentLabel = "";
+
+// Render card grid
+const grid = document.getElementById("cardGrid");
+CARDS.forEach((card, i) => {
+  const btn = document.createElement("button");
+  btn.className = "card-btn";
+  btn.id = "card-btn-" + i;
+  btn.innerHTML = `<span class="card-num">#${card.num}</span><span class="card-name">${card.name}</span><span class="card-id">${card.id}</span>`;
+  btn.onclick = () => selectCard(i);
+  grid.appendChild(btn);
 });
 
-function selectPreset(index) {
-  activePreset = PRESETS[index];
-
-  // Update active style
-  document.querySelectorAll('.preset-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', i === index);
-  });
-
-  // Update scheme
-  document.getElementById('scheme').value = activePreset.scheme;
-
-  // Build dynamic fields
-  const container = document.getElementById('dynamicFields');
-  container.innerHTML = '';
-  activePreset.fields.forEach(field => {
-    const label = document.createElement('label');
-    label.setAttribute('for', 'field_' + field.id);
-    label.textContent = field.label;
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.id = 'field_' + field.id;
-    input.placeholder = field.placeholder;
-    input.oninput = updateUri;
-
-    container.appendChild(label);
-    container.appendChild(input);
-  });
-
-  updateUri();
+function clearActive() {
+  document.querySelectorAll(".card-btn").forEach(b => b.classList.remove("active"));
+  document.querySelector(".unlock-all-btn").style.outline = "none";
 }
 
-function updateUri() {
-  if (!activePreset) return;
-  const fieldValues = {};
-  activePreset.fields.forEach(f => {
-    fieldValues[f.id] = document.getElementById('field_' + f.id)?.value || '';
-  });
-  document.getElementById('fullUri').value = activePreset.build(fieldValues);
+function selectCard(index) {
+  clearActive();
+  document.getElementById("card-btn-" + index).classList.add("active");
+
+  const card = CARDS[index];
+  currentUri = `moh://unlock?card=${card.id}`;
+  currentLabel = card.name;
+
+  document.getElementById("outputName").textContent = card.name;
+  document.getElementById("outputId").textContent = `#${card.num} — ${card.id}`;
+  generateQR(currentUri);
 }
 
-function generateQR() {
-  const uri = document.getElementById('fullUri').value.trim();
-  if (!uri) {
-    showToast('Enter a deep link URI first');
-    return;
-  }
+function selectUnlockAll() {
+  clearActive();
+  document.querySelector(".unlock-all-btn").style.outline = "2px solid #7c3aed";
 
-  const size = parseInt(document.getElementById('qrSize').value);
-  const darkColor = document.getElementById('qrDark').value;
-  const lightColor = document.getElementById('qrLight').value;
+  currentUri = UNLOCK_ALL_URI;
+  currentLabel = "All 21 Cards";
 
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = '';
+  document.getElementById("outputName").textContent = "Unlock ALL Cards";
+  document.getElementById("outputId").textContent = "MOH1-300 through MOH1-320";
+  generateQR(currentUri);
+}
 
-  qrInstance = new QRCode(qrContainer, {
+function generateQR(uri) {
+  const qrContainer = document.getElementById("qrcode");
+  qrContainer.innerHTML = "";
+
+  new QRCode(qrContainer, {
     text: uri,
-    width: size,
-    height: size,
-    colorDark: darkColor,
-    colorLight: lightColor,
+    width: 256,
+    height: 256,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.H
   });
 
-  document.getElementById('linkDisplay').textContent = uri;
-  document.getElementById('outputPanel').classList.add('visible');
-  document.getElementById('outputPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById("linkDisplay").textContent = uri;
+  document.getElementById("outputPanel").classList.add("visible");
+  document.getElementById("outputPanel").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function copyLink() {
-  const uri = document.getElementById('fullUri').value.trim();
-  navigator.clipboard.writeText(uri).then(() => showToast('Link copied!'));
+  navigator.clipboard.writeText(currentUri).then(() => showToast("Link copied!"));
 }
 
 function downloadQR() {
-  const canvas = document.querySelector('#qrcode canvas');
-  if (!canvas) {
-    // Fallback to img
-    const img = document.querySelector('#qrcode img');
-    if (img) {
-      const a = document.createElement('a');
-      a.href = img.src;
-      a.download = 'qrcode.png';
-      a.click();
-    }
-    return;
-  }
-  const a = document.createElement('a');
-  a.href = canvas.toDataURL('image/png');
-  a.download = 'qrcode.png';
+  const canvas = document.querySelector("#qrcode canvas");
+  const img = document.querySelector("#qrcode img");
+  const src = canvas ? canvas.toDataURL("image/png") : img?.src;
+  if (!src) return;
+
+  const a = document.createElement("a");
+  a.href = src;
+  const safeName = currentLabel.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+  a.download = `moh_${safeName}.png`;
   a.click();
-  showToast('QR code downloaded!');
+  showToast("QR code downloaded!");
 }
-
-function downloadSVG() {
-  const uri = document.getElementById('fullUri').value.trim();
-  const size = parseInt(document.getElementById('qrSize').value);
-  const darkColor = document.getElementById('qrDark').value;
-  const lightColor = document.getElementById('qrLight').value;
-
-  // Generate QR data matrix manually for SVG
-  const qrTemp = document.createElement('div');
-  qrTemp.style.display = 'none';
-  document.body.appendChild(qrTemp);
-
-  // Use the canvas to read pixel data
-  const canvas = document.querySelector('#qrcode canvas');
-  if (!canvas) {
-    showToast('Generate a QR code first');
-    return;
-  }
-
-  const ctx = canvas.getContext('2d');
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const moduleCount = findModuleCount(imgData, canvas.width);
-  const cellSize = canvas.width / moduleCount;
-
-  let svgPaths = '';
-  for (let row = 0; row < moduleCount; row++) {
-    for (let col = 0; col < moduleCount; col++) {
-      const x = Math.floor(col * cellSize + cellSize / 2);
-      const y = Math.floor(row * cellSize + cellSize / 2);
-      const idx = (y * canvas.width + x) * 4;
-      const r = imgData.data[idx];
-      const g = imgData.data[idx + 1];
-      const b = imgData.data[idx + 2];
-      const isDark = (r + g + b) / 3 < 128;
-      if (isDark) {
-        svgPaths += `<rect x="${col}" y="${row}" width="1" height="1" fill="${darkColor}"/>`;
-      }
-    }
-  }
-
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${moduleCount} ${moduleCount}" width="${size}" height="${size}">
-  <rect width="${moduleCount}" height="${moduleCount}" fill="${lightColor}"/>
-  ${svgPaths}
-</svg>`;
-
-  const blob = new Blob([svg], { type: 'image/svg+xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'qrcode.svg';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  document.body.removeChild(qrTemp);
-  showToast('SVG downloaded!');
-}
-
-function findModuleCount(imgData, width) {
-  // Scan the first row to find module size by looking at color transitions
-  let firstDark = -1;
-  let firstLight = -1;
-  for (let x = 0; x < width; x++) {
-    const idx = x * 4;
-    const bright = (imgData.data[idx] + imgData.data[idx + 1] + imgData.data[idx + 2]) / 3;
-    if (bright < 128 && firstDark === -1) firstDark = x;
-    if (bright >= 128 && firstDark !== -1 && firstLight === -1) firstLight = x;
-  }
-
-  if (firstDark === -1 || firstLight === -1) return 21; // default
-
-  // The finder pattern starts with 7 dark modules
-  // Scan to find the repeating module size
-  let moduleSize = 1;
-  for (let x = firstDark + 1; x < width; x++) {
-    const idx = x * 4;
-    const bright = (imgData.data[idx] + imgData.data[idx + 1] + imgData.data[idx + 2]) / 3;
-    if (bright < 128) {
-      moduleSize++;
-    } else {
-      break;
-    }
-  }
-
-  // First dark run in finder pattern = 1 module width
-  // But the first element of the finder pattern is 7 modules wide
-  // Actually, the first dark run in the top-left is the first module
-  const cellSize = moduleSize;
-  return Math.round(width / cellSize);
-}
-
-// QR size slider
-document.getElementById('qrSize').oninput = function() {
-  document.getElementById('qrSizeLabel').textContent = this.value + 'px';
-};
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  const t = document.getElementById("toast");
   t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
 }
 </script>
 
