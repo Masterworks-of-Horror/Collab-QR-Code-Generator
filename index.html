@@ -400,14 +400,34 @@ function generateQR(uri) {
   const qrContainer = document.getElementById("qrcode");
   qrContainer.innerHTML = "";
 
-  new QRCode(qrContainer, {
-    text: uri,
-    width: 256,
-    height: 256,
-    colorDark: "#000000",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H
-  });
+  // Use lower correction level for longer URIs to avoid QR generation failures
+  const correctionLevel = uri.length > 100 ? QRCode.CorrectLevel.M : QRCode.CorrectLevel.H;
+
+  try {
+    new QRCode(qrContainer, {
+      text: uri,
+      width: 256,
+      height: 256,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: correctionLevel
+    });
+  } catch (e) {
+    // Fallback: try with lowest correction level
+    try {
+      new QRCode(qrContainer, {
+        text: uri,
+        width: 256,
+        height: 256,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    } catch (e2) {
+      qrContainer.textContent = "Error generating QR code";
+      console.error("QR generation failed:", e2);
+    }
+  }
 
   // Apply preview styles
   updatePreviewStyle();
